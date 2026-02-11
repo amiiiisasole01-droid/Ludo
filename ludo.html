@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ludo 3 Player</title>
+
+<style>
+body{
+    font-family: Arial;
+    text-align:center;
+    background: linear-gradient(135deg,#ff9a9e,#fad0c4);
+}
+
+h1{
+    margin-top:15px;
+}
+
+.board{
+    width: 520px;
+    margin:20px auto;
+    display:grid;
+    grid-template-columns: repeat(13, 38px);
+    gap:2px;
+}
+
+.cell{
+    width:38px;
+    height:38px;
+    background:white;
+    border:1px solid #ccc;
+    border-radius:4px;
+}
+
+.red{ background:red; }
+.blue{ background:blue; }
+.green{ background:green; }
+
+button{
+    padding:8px 15px;
+    margin:5px;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.status{
+    margin-top:10px;
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎲 Ludo 3 Player</h1>
+
+<div class="status" id="status">Giliran: Merah</div>
+<div>Dadu: <span id="dice">-</span></div>
+
+<button onclick="rollDice()">Lempar Dadu</button>
+<button onclick="restartGame()">Restart</button>
+
+<div class="board" id="board"></div>
+
+<script>
+const boardElement = document.getElementById("board");
+const statusText = document.getElementById("status");
+const diceText = document.getElementById("dice");
+
+const totalCells = 52;
+
+let players = [
+    {name:"Merah", color:"red", position:0},
+    {name:"Biru", color:"blue", position:0},
+    {name:"Hijau", color:"green", position:0}
+];
+
+let currentPlayer = 0;
+let gameOver = false;
+
+function createBoard(){
+    boardElement.innerHTML="";
+    for(let i=0;i<totalCells;i++){
+        let cell=document.createElement("div");
+        cell.classList.add("cell");
+        cell.id="cell-"+i;
+        boardElement.appendChild(cell);
+    }
+    updateBoard();
+}
+
+function updateBoard(){
+    document.querySelectorAll(".cell").forEach(cell=>{
+        cell.classList.remove("red","blue","green");
+    });
+
+    players.forEach(player=>{
+        if(player.position < totalCells){
+            document.getElementById("cell-"+player.position)
+            .classList.add(player.color);
+        }
+    });
+}
+
+function rollDice(){
+    if(gameOver) return;
+
+    let dice=Math.floor(Math.random()*6)+1;
+    diceText.innerText=dice;
+
+    let player=players[currentPlayer];
+    player.position += dice;
+
+    if(player.position >= totalCells-1){
+        player.position=totalCells-1;
+        updateBoard();
+        statusText.innerText="🎉 "+player.name+" Menang!";
+        gameOver=true;
+        return;
+    }
+
+    updateBoard();
+
+    currentPlayer=(currentPlayer+1)%3;
+    statusText.innerText="Giliran: "+players[currentPlayer].name;
+}
+
+function restartGame(){
+    players.forEach(p=>p.position=0);
+    currentPlayer=0;
+    gameOver=false;
+    diceText.innerText="-";
+    statusText.innerText="Giliran: Merah";
+    updateBoard();
+}
+
+createBoard();
+</script>
+
+</body>
+</html>
